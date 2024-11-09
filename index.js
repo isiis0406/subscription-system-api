@@ -3,7 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import handleError from './middlewares/errorHandler.js';
 import logHandler from './middlewares/logHandler.js';
-
+import authRoute from './routes/auth.route.js'
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 9500
@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logHandler);
 
 //routes
-
+app.use("/api/auth",authRoute)
 //ErrorHandler
 app.use(handleError);
 //Server
