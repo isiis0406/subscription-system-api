@@ -1,0 +1,29 @@
+{
+  "name": "subscription-system-api",
+  "version": "1.0.0",
+  "description": "Backend system for subscription system application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isiis0406/subscription-system-api.git"
+  },
+  "author": "BALDE ISSA BOBO",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isiis0406/subscription-system-api/issues"
+  },
+  "homepage": "https://github.com/isiis0406/subscription-system-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-async-handler": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "prisma": "^5.22.0"
+  }
+}
