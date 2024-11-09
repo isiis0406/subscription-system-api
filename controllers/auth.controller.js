@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
-import jwt  from "jsonwebtoken"
-
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient
 
@@ -11,6 +11,7 @@ const generateToken = (payload) => {
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     )
+    return token
 }
 
 const handleResponse = (res, statusCode, message, data = null) => {
@@ -23,14 +24,14 @@ const handleResponse = (res, statusCode, message, data = null) => {
 export const login = async (req, res, next) => {
     const { email, password } = req.body;
     try {
-        user = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 email
             }
         })
         if (!user) return handleResponse(res, 404, "Wrong credentials")
 
-        const isCorrectPassword = bcrypt.compare(password, user.password);
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
         if (!isCorrectPassword) return handleResponse(res, 404, "Wrong credentials")
 
         const token = generateToken({ userId: user.userId, email: user.email })
@@ -38,13 +39,13 @@ export const login = async (req, res, next) => {
         return handleResponse(res, 200, "Authenticated successfully", { user: userDetails, token })
 
     } catch (error) {
-
+        next(error)
     }
 
 }
 
 export const register = async (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, name, password } = req.body;
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -54,11 +55,12 @@ export const register = async (req, res, next) => {
         if (user) {
             return handleResponse(res, 400, "User already exists")
         }
-        const salt = bcrypt.genSaltSync(10);
-        const hashedPassword = bcrypt.hashSync(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = await prisma.user.create({
             data: {
                 email,
+                name,
                 password: hashedPassword
             }
         })
