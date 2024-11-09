@@ -9,6 +9,98 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  suspended
+}
+
+enum InvoiceStatus {
+  paid
+  unpaid
+  overdue
+}
+
+enum LogAction {
+  login
+  logout
+  subscription_created
+  subscription_canceled
+  subscription_suspended
+  invoice_created
+  invoice_paid
+  invoice_overdue
+}
+
+model User {
+  userId       String         @id @default(cuid())
+  email        String         @unique
+  name         String?        @db.VarChar(255)
+  role         Role           @default(user)
+  password     String         @db.VarChar(255)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Subscription Subscription[]
+  Invoice      Invoice[]
+  Log          Log[]
+}
+
+model SubscriptionPlan {
+  planId       String         @id @default(cuid())
+  name         String         @db.VarChar(255)
+  price        Float          @db.Float
+  description  String?        @db.Text
+  level        Int            @default(1)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Subscription Subscription[]
+}
+
+model Subscription {
+  subscriptionId  String             @id @default(cuid())
+  userId          String
+  planId          String
+  status          SubscriptionStatus @default(active)
+  nextBillingDate DateTime
+  lastPaymentDate DateTime
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  user             User             @relation(fields: [userId], references: [userId])
+  subscriptionPlan SubscriptionPlan @relation(fields: [planId], references: [planId])
+  Invoice          Invoice[]
+}
+
+model Invoice {
+  invoiceId       String        @id @default(cuid())
+  subscriptionId  String
+  userId          String
+  amount          Float         @db.Float
+  status          InvoiceStatus @default(unpaid)
+  dueDate         DateTime
+  paidDate        DateTime?
+  remainingAmount Float?        @db.Float
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  subscription    Subscription  @relation(fields: [subscriptionId], references: [subscriptionId])
+  user            User          @relation(fields: [userId], references: [userId])
+}
+
+model Log {
+  logId     String     @id @default(cuid())
+  userId    String
+  action    LogAction?
+  message   String?    @db.Text
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user User @relation(fields: [userId], references: [userId])
 }
