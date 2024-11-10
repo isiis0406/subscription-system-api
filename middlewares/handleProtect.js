@@ -12,8 +12,8 @@ const protect = (req, res, next) => {
 
         const user = await prisma.user.findUnique({ where: { userId: decoded.userId } });
         if (!user) return res.status(403).json({ status: 403, message: "Unauthorized" });
-
-        req.user = user;
+        const { password: _, ...userDetails } = user;
+        req.user = userDetails;
         next();
     });
 };
