@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
+
 
 const prisma = new PrismaClient
 
@@ -31,7 +30,6 @@ export const getAuthenticatedUser = async (req, res, next) => {
     }
 
 }
-
 export const getUser = async (req, res, next) => {
     const { userId } = req.params;
     try {
